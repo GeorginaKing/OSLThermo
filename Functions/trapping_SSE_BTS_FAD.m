@@ -1,12 +1,11 @@
-% This model uses General order kinetic (GOK) for trapping. GOK assumes
-% trapping slower than SSE, due to e.g., Coulomb repulsive forces. Also,
-% the effective trap lifetime vary with time.
+% This model assumes single trap population (Single saturating exponential)
+% for trapping.
 % Thermal detrapping account for band-tail states.
 % Athermal fading is accounted for and s_ath = 3e15 (Huntley, 2006)
 %%maximebernard%%
 % last update: 27/01/2025
 
-function [nNf,nNtest] = trapping_GOK_BTS_FAD(time,temp,kparams);
+function [nNf,nNtest] = trapping_SSE_BTS_FAD(time,temp,kparams);
 
 Ma = 3600*24*365*1e6;
 % Extract parameters
@@ -16,7 +15,6 @@ s = 10.^kparams.s10(1);
 rhop = 10.^kparams.rhop10(1); rhop(rhop<0)=0; %added for negative rhop GK 23.11.2016
 Et = kparams.Et(1);
 Eu = kparams.Eu(1);
-a = kparams.GOK_a(1);
 
 % Define constances
 kb = 8.617343e-5; Hs = 3e15; %s value after Huntley (2006) J. Phys. D.
@@ -24,7 +22,7 @@ magic_ratio = ddot/D0;
 nrp = 100;
 nEb = 100;
 nstep = length(time);
-dt = ((max(time)-min(time))/(nstep-1))*Ma;
+dt = ((max(time)-min(time))/(nstep-1))*Ma;% dt constant for Tt from Pecube ?
 
 % Define rprime range and tau athermic
 rprime = linspace(0.0,2.50,nrp); %create vector of rprime distances
@@ -34,20 +32,19 @@ npr = sum(pr);
 inv_tauath = ones(nEb,1)*(Hs*exp(-(rhop.^-(1./3)).*rprime)); %combine eq 1 and 3 from Kars et al 2008, convert to Ma
 
 % Create variables for lili2013 BTM
+%Eb = linspace(0.01,Et+0.01,nEb)';
 Eb = linspace(0,Et,nEb)';
 pEb = exp(-Eb'/Eu);
 npEb = sum(pEb);
 T = temp+273.15;
 
+% computes nN for the random Tt path
 nN = zeros(nEb,nrp,nstep);
 nNf = zeros(1,nstep);
-
-    for j=2:nstep
-            inv_tauth = s*exp(-(Et-Eb)./(kb.*T(j-1)))*ones(1,nrp);    
-            xkd=-a*magic_ratio*(1-nN(:,:,j-1)).^(a-1)-inv_tauth-inv_tauath;                                     
-            xk=magic_ratio*(1-nN(:,:,j-1)).^a-inv_tauth.*(nN(:,:,j-1))-inv_tauath.*(nN(:,:,j-1));
-            nN(:,:,j) = nN(:,:,j-1)+dt*xk./(1-dt*xkd);
-            nNf(j) = pEb*nN(:,:,j)*pr; 
-    end
-    
+for i = 2:nstep
+	inv_tauth = s*exp(-(Et-Eb)./(kb.*T(i-1)))*ones(1,nrp);
+    alpha = magic_ratio+inv_tauth+inv_tauath;
+	nN(:,:,i) = (nN(:,:,i-1)+magic_ratio.*dt).*(1./(1+dt.*alpha));
+	nNf(i) = pEb*nN(:,:,i)*pr;
+end
 nNf = nNf./npEb./npr;

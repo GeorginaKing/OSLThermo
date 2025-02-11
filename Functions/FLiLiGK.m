@@ -1,6 +1,10 @@
+% We assume athermal fading during isothermal decay
+%%maxime bernard%%
+% last update: 24/01/2025
+
 function [out] = FLiLiGK(beta, t)
 
-global isoT measL rhop10
+global isoT measL rhop10 Hs
 mat=nan(length(measL),length(isoT));
 mat(1:length(t))=t;
 
@@ -16,7 +20,7 @@ out=[];
 
 for j=1:length(mat(1,:));
     ok=isfinite(mat(:,j)); time=mat(:,j);
-    kars=exp(-rhop*log(1.8*3e15.*(250+time(ok))).^3);
-    out=[out; A(j).*kars.*ThermaldecayBandTailGK2(time(ok),T(j),Et,Eu,s)];
+    Fading=exp(-rhop*log(1.8*Hs.*(250+time(ok))).^3);
+    out=[out; A(j).*Fading.*ThermaldecayBandTailGK2(time(ok),T(j),Et,Eu,s)];
 end
 out = out';
