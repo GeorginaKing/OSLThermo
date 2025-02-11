@@ -14,43 +14,44 @@ addpath('./Functions/');
 addpath('./Data/');
 
 %define global parameters for the other scripts
-global SAR_model ITL_model SAR_MODEL ITL_MODEL nSAR
+global SAR_model ITL_model SAR_MODEL ITL_MODEL nSAR nFa
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% SAMPLE PARAMETERS ==> TO CHANGE %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% List of file names %%%
-filenamevec={'KRG104'};
+filenamevec={'NB123'};
  
 %%% Number of measurements %%%
-NITLvec = [7];  %number of isothermal decay temperatures
+NITLvec = [7];  %number of isothermal decay temperatures 
 nSAR = [3];     %number of aliquots measured for SAR
+nFa = [3];      %number of aliquots in fading experiments
 
 %%%Select models%%%
-SAR_model=[1]; %1 = SSE; %2 = GOK
-ITL_model=[3]; %1 = GOK; 2 = GAUSS; 3 = BTS
+SAR_model=[3]; %1 = SSE; %2 = GOK; %3 = GAUSS
+ITL_model=[2]; %1 = GOK; 2 = GAUSS; 3 = BTS (Band-tail states)
 
-if SAR_model==1; SAR_MODEL='SSE'; elseif SAR_model==2; SAR_MODEL='GOK'; end;
+if SAR_model==1; SAR_MODEL='SSE'; elseif SAR_model==2; SAR_MODEL='GOK'; elseif SAR_model ==3; SAR_MODEL = 'GAUSS'; end;
 if ITL_model==1; ITL_MODEL='GOK'; elseif ITL_model==2; ITL_MODEL='Gauss'; elseif ITL_model==3; ITL_MODEL='BTS'; end;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% RUNNING THE MODEL %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for j=1:size(filenamevec,1);    % Loops through the different filenames
+for j=1:size(filenamevec,1)    % Loops through the different filenames
 
     filename=cell2mat(filenamevec(j,:));
     NITL=NITLvec(j);
     
     %%% Convert the excel file to a .mat format %%
-     run Stage1_ExcelToStruct 
+%      run Stage1_ExcelToStruct
  
      %%% Fit the data using the selected model %%%
 %     run Stage2a_Fitparameters
  
 %     %%% Plot the results of the fits %%%
-%          run Stage2b_PlotFit
+         run Stage2b_PlotFit
  
     %%% Invert the data following King et al. (2016, QG) %%%
 %      run Stage3a_Inversion
@@ -63,7 +64,10 @@ for j=1:size(filenamevec,1);    % Loops through the different filenames
 
     %%% Plot the results of the inversion %%%
 %      run Stage4b_PlotExh
-    
+%     run Stage5a_FwDModel.m
+
+    %%% Benchmark experiment Pecube %%%%%
+%     run Stage5a_FwDModel_maximeESR.m
     
 end
 toc
