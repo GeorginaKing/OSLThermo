@@ -27,7 +27,7 @@ for i=1:length(sheets)
 		records(i).rawdata(j).T = raw{k,2};             % Temperature
 		records(i).rawdata(j).Ddot = raw{k+1,2};        % Instrument dose rate
 		records(i).rawdata(j).t = [raw{k,4:end}].*1e3;  % Measurement time (irradiation or delay time)
-		records(i).rawdata(j).L = [raw{k+1,4:end}]./max([raw{k+1,4:end}]); %normalises the luminescence data to the maximum signal intensity
+		records(i).rawdata(j).L = [raw{k+1,4:end}]; %normalises the luminescence data to the maximum signal intensity
 	end
 end
 
