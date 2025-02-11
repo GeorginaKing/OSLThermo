@@ -13,14 +13,15 @@ nt = length(records);                   %number of signals
 
 colmat = colormap;
 index = linspace(1,61,sum([ones(size(records(1).rawdata(4:3+NITL)))]));
-Index = ones(12,1)*index; 
+Index = ones(12,1)*index; % This might be to change
 logtick = logspace(0,9,10);
-MTemp=[50 100 150 225 50 100 150 225];  %Arbitrary numbers, can be changed 
+MTemp=[50 225 50 225 50 225 50 225 50 225 50 225 50 225 50 225 50 225];  %Arbitrary numbers, can be changed 
 
 textmod = '%s: %0.2f +/- %0.2f';
 
 for i=1:nt
 	figure(i);
+    set(gcf,'units','normalized','outerposition',[0.2 0.2 0.8 0.8])
            
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Fading %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -47,15 +48,10 @@ for i=1:nt
 
     % Add text to figure to list sample parameters
 	text(3e6,1.075,'A','fontweight','bold'); 
-% 	name = fieldnames([records(i).params]);
-% 	value = struct2cell([records(i).params]);
-% 	TxT = sprintf(textmod, 'n/N', records(i).nNnat(1), records(i).nNnat(2));
-% 	for k = 3:length(name)
-% 		txt = sprintf(textmod, name{k}, value{k}(1), value{k}(2));
-% 	    TxT=strvcat(TxT,txt);
-%     end
-% 	text(2e2,0.85,TxT,'VerticalAlignment','top');
-% 	text(2e2,0.85,records(i).id,'VerticalAlignment','bottom','fontweight','bold');
+	name = fieldnames([records(i).params]);
+	value = struct2cell([records(i).params]);
+	txt = sprintf(textmod, name{4}, value{4}(1), abs(value{4}(2) - value{4}(1))); %rhop
+	text(2e2,0.85,txt,'VerticalAlignment','top');
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Dose Response Curve %%%
@@ -80,8 +76,8 @@ for i=1:nt
 
     % Plot dose response curve
 	subplot(1,3,2,'xScale','log');
-	xlabel('Dose (s)'); ylabel('(n/N)');
-	axis([1 1e6 0 1.1],'square'); box on; hold on;
+	xlabel('Time (s)'); ylabel('(n/N)');
+	axis([1 1e6 0 1.2],'square'); box on; hold on;
 
 	fill(xx,d,[0.5 0.5 1], 'EdgeColor','none');
 	plot(x,y, 'r-');
@@ -89,9 +85,25 @@ for i=1:nt
 	scatter(t(ok),L(ok),[], 'r','filled','MarkerEdgeColor', 'k');
 	scatter(t(~ok),L(~ok),[], 'y','filled','MarkerEdgeColor', 'k');
 
-    text(3e5,1.05,'B','fontweight','bold');  
-% 	labddotlab = sprintf('Laboratory dose rate: %0.2f Gy s^-^1', records(i).rawdata(1).Ddot); 
-% 	text(2,1.05,labddotlab);
+    text(3e5,1.05,'B','fontweight','bold');
+    if strcmp(SAR_MODEL,'GAUSS')
+        TxT1 = sprintf(textmod, 'n/N', records(i).nNnat(1), records(i).nNnat(2));
+        TxT2 = sprintf('%s: %0.1f +/- %0.1f', 'D_0', round(records(i).params.D0(1),1), round(records(i).params.D0(2),1));
+        TxT3 = sprintf('%s: %0.1f +/- %0.1f', '\sigma_{D_0}', round(records(i).params.sigmaD0(1),1), round(records(i).params.sigmaD0(2),1));
+        TxT=strvcat(TxT1,TxT2,TxT3);
+    elseif strcmp(SAR_MODEL,'GOK')
+        TxT1 = sprintf(textmod, 'n/N', records(i).nNnat(1), records(i).nNnat(2));
+        TxT2 = sprintf('%s: %0.1f +/- %0.1f', 'D_0', round(records(i).params.D0(1),1), round(records(i).params.D0(2),1));
+        TxT3 = sprintf('%s: %0.1f +/- %0.1f', 'a', round(records(i).params.GOK_a(1),1), round(records(i).params.GOK_a(2),1));
+	    labddotlab = sprintf('Laboratory dose rate: %0.2f Gy s^-^1', records(i).rawdata(1).Ddot); 
+        TxT=strvcat(TxT1,TxT2,TxT3);
+    else
+        TxT1 = sprintf(textmod, 'n/N', records(i).nNnat(1), records(i).nNnat(2));
+        TxT2 = sprintf('%s: %0.1f +/- %0.1f', 'D_0', round(records(i).params.D0(1),1), round(records(i).params.D0(2),1));
+        TxT=strvcat(TxT1,TxT2);
+    end
+	text(3,0.90,TxT,'horizontalalignment','left');
+
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Isothermal Decay %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -124,21 +136,34 @@ for i=1:nt
 	fill(itlxx,itld,[0.5 0.5 1], 'EdgeColor','none');
 	P = plot(itlx,itly);
 	scatter(itlt(:),itlL(:),[], Index(:),'filled','MarkerEdgeColor','k');
-% 	for k = 1:length(P)
-% 		set(P(k), 'Color',colmat(index(k),:));
-%          %Edit temperatures for isothermal temperatures used
-%         legend(P,'170^oC','190^oC','210^oC','230^oC','250^oC','300^oC','350^oC','Location','Best');
-% 	end
 
     text(3e5,1.05,'C','fontweight','bold'); 
+    if strcmp(ITL_MODEL,'GAUSS')
+        TxT1 = sprintf(textmod, 'E', round(records(i).params.Et(1),2), round(records(i).params.Et(2),2));
+        TxT2 = sprintf('%s: %0.1f +/- %0.1f', 'log_{10}s', round(records(i).params.s10(1),2), round(records(i).params.s10(2),2));
+        TxT3 = sprintf(textmod, 'log_{10}\rho', round(records(i).params.rhop10(1),2), round(abs(records(i).params.rhop10(3)-records(i).params.rhop10(1)),2));
+        TxT=strvcat(TxT1,TxT2,TxT3);
+    elseif strcmp(ITL_MODEL,'BTS')
+        TxT1 = sprintf(textmod, 'E', round(records(i).params.Et(1),2), round(records(i).params.Et(2),2));
+        TxT2 = sprintf('%s: %0.1f +/- %0.1f', 'log_{10}s', round(records(i).params.s10(1),2), round(records(i).params.s10(2),2));
+        TxT3 = sprintf(textmod, 'log_{10}\rho', round(records(i).params.rhop10(1),2), round(abs(records(i).params.rhop10(3)-records(i).params.rhop10(1)),2));
+        TxT4 = sprintf('%s: %0.3f +/- %0.3f', 'Eu', round(records(i).params.Eu(1),3), round(records(i).params.Eu(2),3));
+        TxT=strvcat(TxT1,TxT2,TxT3,TxT4);
+    else
+        TxT1 = sprintf(textmod, 'E', round(records(i).params.Et(1),2), round(records(i).params.Et(2),2));
+        TxT2 = sprintf('%s: %0.1f +/- %0.1f', 'log_{10}s', round(records(i).params.s10(1),2), round(records(i).params.s10(2),2));
+        TxT3 = sprintf(textmod, 'log_{10}\rho', round(records(i).params.rhop10(1),2), round(abs(records(i).params.rhop10(3)-records(i).params.rhop10(1)),2));
+        TxT4 = sprintf('%s: %0.1f +/- %0.1f', 'b', round(records(i).params.GOK_b(1),1), round(records(i).params.GOK_b(2),1));
+        TxT=strvcat(TxT1,TxT2,TxT3,TxT4);
+    end
+	text(2,0.2,TxT,'horizontalalignment','left');
     
    	subplot(1,3,1)
-    text(2e2,1.08,['IRSL' num2str(MTemp(i)) '^oC'],'fontweight','bold')
-    
+    text(2e2,1.15,[records(i).id],'fontweight','bold')
     subplot(1,3,2); text(2,1.05, [SAR_MODEL],'fontweight','bold'); 
     subplot(1,3,3); text(2,1.05, [ITL_MODEL],'fontweight','bold');
 
-    print('-depsc',['./Figures/' filename '_' records(i).id '_' SAR_MODEL '_' ITL_MODEL '.eps']); 
+    print(['./Figures/' filename '_' records(i).id '_' SAR_MODEL '_' ITL_MODEL '.svg'],'-dsvg','-vector'); 
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -154,30 +179,48 @@ sKarsresAv = reshape([records.KarsresAv],2,nt)'; sKarsresAv=sKarsresAv(:,2);
 col=[0 1 0
 	0 0 1
 	1 0 0
-	1 1 0];
+	1 1 0
+    0 1 1
+    1 0 1
+    0.5 0.5 0.5
+    1 0.3 0.3
+    0.3 1 0.3
+    0.3 0.3 1
+    0.8 0.2 0.2
+    0.2 0.8 0.2
+    0.2 0.2 0.8
+    0.1 0.8 0.8
+    0.8 0.1 0.8
+    0.8 0.8 0.1
+    0.4 0.6 0.6
+    0.6 0.4 0.6
+    0.6 0.6 0.4];
 col=col(1:nt,:);
+colorPerSample = [[255,51,51];[255,255,1];[51,255,51];[51,255,255];[51,153,255];[255,102,255];[255,178,102];[0.5,0.5,0.5];[204,0,102];...
+    [255,51,51];[255,255,1];[51,255,51];[51,255,255];[51,153,255];[255,102,255];[255,178,102];[0.5,0.5,0.5];[204,0,102];]./255;
 
 h1 = figure(i+1);
 xlabel('(n/N)_n_a_t'); ylabel('(n/N)_s_s');  
 axis([0 1 0 1],'square'); box on; hold on;
 
-scatter(nNnat,KarsresAv,40,col,'filled','o');
 fill([0 1 1],[0 0 1],[0.5 0.5 1]);
 p15_x=[0,1]; p15_y=[0,0.85]; plot(p15_x,p15_y,'blue');
 m15_x=[0,1]; m15_y=[0,1.15]; plot(m15_x,m15_y,'blue');
-errorbar(nNnat,KarsresAv,sKarsresAv,sKarsresAv,'ko');
-herrorbar(nNnat,KarsresAv,snNnat,snNnat,'ko');
+for j=1:nt
+errorbar(nNnat(j),KarsresAv(j),sKarsresAv(j),sKarsresAv(j),snNnat(j),snNnat(j),'ko','MarkerFaceColor',colorPerSample(j,:));
+end
 
 % Generate dummy info for plot handles "h"
-h = zeros(nt,1);
-
-for j=1:nt;
-h(j) = scatter(nNnat(j),KarsresAv(j),40,'MarkerFaceColor',col(j,:),'MarkerEdgeColor','k');
+h = zeros(nt/2,1);
+names = {};
+for j=1:nt/2
+h(j) = scatter(nNnat(j),KarsresAv(j),40,'MarkerFaceColor',colorPerSample(j,:),'MarkerEdgeColor','k');
+names{j} = records(j*2-1).id(:);
 end
 
 % Define legend according to handles "h"
-names = ["IRSL 50 ^oC","IRSL 100 ^oC","IRSL 150 ^oC","IRSL 225 ^oC"]
-legend(h,names(1:nt),'Location','southeast');
+% names = ["IRSL 50 ^oC","IRSL 225 ^oC","IRSL 50 ^oC","IRSL 225 ^oC"]
+legend(h,names(:),'Location','southeast');
 text(0.05,0.95,filename,'fontweight','bold');
 
 %Select output file format
