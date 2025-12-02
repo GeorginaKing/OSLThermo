@@ -216,9 +216,9 @@ for i=1:nt
     TypeSignal(i) = records(i).typeSignal;                                  % temperature of the signal measured in [°C] (50, 100, etc.)
     text(2e2,0.73,[cell2mat(TypeMeasurement(i)) ' ' num2str(TypeSignal(i)) ' °C'],'fontweight','bold'); % signal measured
 
-    print('-dpng',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' char(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.png']);
-    % print('-dsvg',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' char(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.svg']);
-    % print('-depsc',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' char(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.eps']);
+    print('-dpng',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' num2str(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.png']);
+    % print('-dsvg',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' num2str(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.svg']);
+    % print('-depsc',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' num2str(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.eps']);
 
 end
 
@@ -273,4 +273,5 @@ print('-dpng',['./Figures/' filename '_Kars_' SAR_MODEL '_' ITH_MODEL '.png']);
 
 %%% Running time
 tEnd = toc(tStart);
+
 fprintf('Stage2b_PlotFit took %d minutes and %f seconds\n', floor(tEnd/60), rem(tEnd,60));
