@@ -32,11 +32,20 @@ nITHvec     =   [7;7];          % number of isothermal decay temperatures
 nFADvec     =   [3;3];          % number of aliquots measured for athermal fading
 
 %%% Select models %%%
-SAR_fittype     =   1;          % 1=SSE; 2=GOK
-ITH_fittype     =   1;          % 1=BTS; 2=GOK; 3=GAUSS
+SAR_fittype     =   2;          % 1=SSE; 2=GOK
+ITH_fittype     =   3;          % 1=BTS; 2=GOK; 3=GDE
 
 if SAR_fittype==1; SAR_MODEL='SSE'; elseif SAR_fittype==2; SAR_MODEL='GOK'; end
-if ITH_fittype==1; ITH_MODEL='BTS'; elseif ITH_fittype==2; ITH_MODEL='GOK'; elseif ITH_fittype==3; ITH_MODEL='GAUSS'; end
+if ITH_fittype==1; ITH_MODEL='BTS'; elseif ITH_fittype==2; ITH_MODEL='GOK'; elseif ITH_fittype==3; ITH_MODEL='GDE'; end
+
+if ~ismember(SAR_fittype, [1 2])
+    disp('ERROR: Invalid SAR_fittype');
+    return
+end
+if ~ismember(ITH_fittype, [1 2 3])
+    disp('ERROR: Invalid ITH_fittype');
+    return
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,10 +75,10 @@ for f=1:size(filenamevec,1)                                                 % lo
     run Stage3b_PlotTt
 
     %%% Invert the data following Biswas et al. (2018, EPSL) %%%
-    run Stage4a_InversionExh
+    % run Stage4a_InversionExh
 
     %%% Plot the results of the inversion for exhumation %%%
-    run Stage4b_PlotExh
+    % run Stage4b_PlotExh
 
 end
 

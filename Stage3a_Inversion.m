@@ -105,8 +105,8 @@ parfor i = 1:niter
                 v(:,k) = trapping_SSE_BTS_FAD(time,temp,kp(k));
             elseif ITH_fittype==2 % GOK
                 v(:,k) = trapping_SSE_GOK_FAD(time,temp,kp(k));
-            elseif ITH_fittype==3 % GAUSS
-                v(:,k) = trapping_SSE_GAUSS_FAD(time,temp,kp(k));
+            elseif ITH_fittype==3 % GDE
+                v(:,k) = trapping_SSE_GDE_FAD(time,temp,kp(k));
             end
 
         elseif SAR_fittype==2 % GOK fit
@@ -114,8 +114,8 @@ parfor i = 1:niter
                 v(:,k) = trapping_GOK_BTS_FAD(time,temp,kp(k));
             elseif ITH_fittype==2 % GOK
                 v(:,k) = trapping_GOK_GOK_FAD(time,temp,kp(k));
-            elseif ITH_fittype==3 % GAUSS
-                v(:,k) = trapping_GOK_GAUSS_FAD(time,temp,kp(k));
+            elseif ITH_fittype==3 % GDE
+                v(:,k) = trapping_GOK_GDE_FAD(time,temp,kp(k));
             end
 
         end

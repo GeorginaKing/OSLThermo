@@ -195,14 +195,15 @@ for i=1:nt
             TxT3 = sprintf('%s = %0.2f +/- %0.2f s^-^1', 'log_{10}s', round(records(i).params.s10(1),2), round(records(i).params.s10(2),2));
             TxT=strvcat(TxT1,TxT2,TxT3);
         elseif strcmp(ITH_MODEL,'GOK')
-            TxT1 = sprintf('%s = %0.2f +/- %0.2f eV', 'E', round(records(i).params.Et(1),2), round(records(i).params.Et(2),2));
+            TxT1 = sprintf('%s = %0.2f +/- %0.2f eV', 'Et', round(records(i).params.Et(1),2), round(records(i).params.Et(2),2));
             TxT2 = sprintf('%s = %0.2f +/- %0.2f s^-^1', 'log_{10}s', round(records(i).params.s10(1),2), round(records(i).params.s10(2),2));
             TxT3 = sprintf('%s = %0.1f +/- %0.1f', 'b', round(records(i).params.GOK_b(1),1), round(records(i).params.GOK_b(2),1));
             TxT=strvcat(TxT1,TxT2,TxT3);
-        elseif strcmp(ITH_MODEL,'GAUSS')
-            TxT1 = sprintf('%s = %0.2f +/- %0.2f eV', 'E', round(records(i).params.Et(1),2), round(records(i).params.Et(2),2));
-            TxT2 = sprintf('%s = %0.2f +/- %0.2f s^-^1', 'log_{10}s', round(records(i).params.s10(1),2), round(records(i).params.s10(2),2));
-            TxT=strvcat(TxT1,TxT2);
+        elseif strcmp(ITH_MODEL,'GDE')
+            TxT1 = sprintf('%s = %0.2f +/- %0.2f eV', 'Et', round(records(i).params.Et(1),2), round(records(i).params.Et(2),2));
+            TxT2 = sprintf('%s = %0.2f +/- %0.2f eV', '\sigma(Et)', round(records(i).params.sigmaEt(1),2), round(records(i).params.sigmaEt(2),2));
+            TxT3 = sprintf('%s = %0.2f +/- %0.2f s^-^1', 'log_{10}s', round(records(i).params.s10(1),2), round(records(i).params.s10(2),2));
+            TxT=strvcat(TxT1,TxT2,TxT3);
         end
         text(2e0,0.15,TxT,'horizontalalignment','left');
 
@@ -216,9 +217,9 @@ for i=1:nt
     TypeSignal(i) = records(i).typeSignal;                                  % temperature of the signal measured in [°C] (50, 100, etc.)
     text(2e2,0.73,[cell2mat(TypeMeasurement(i)) ' ' num2str(TypeSignal(i)) ' °C'],'fontweight','bold'); % signal measured
 
-    print('-dpng',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' num2str(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.png']);
-    % print('-dsvg',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' num2str(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.svg']);
-    % print('-depsc',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' num2str(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.eps']);
+    print('-dpng',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' char(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.png']);
+    % print('-dsvg',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' char(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.svg']);
+    % print('-depsc',['./Figures/' filename '_' char(TypeMeasurement(i)) '-' char(TypeSignal(i)) '_' SAR_MODEL '_' ITH_MODEL '.eps']);
 
 end
 
@@ -273,5 +274,4 @@ print('-dpng',['./Figures/' filename '_Kars_' SAR_MODEL '_' ITH_MODEL '.png']);
 
 %%% Running time
 tEnd = toc(tStart);
-
 fprintf('Stage2b_PlotFit took %d minutes and %f seconds\n', floor(tEnd/60), rem(tEnd,60));

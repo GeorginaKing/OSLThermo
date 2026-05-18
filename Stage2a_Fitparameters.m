@@ -217,7 +217,7 @@ for i=1:nt                                                                  % lo
         simDRC = [];
         for j=1:length(natdose)
             for k=1:length(rprime)                                          % loops through electron-hole distances
-                simDRC(k,j) = pr(k)*((natDdot(1)/D0 )/(natDdot(1)/D0+K(k))...
+                simDRC(k,j) = pr(k)*((natDdot(1)/D0)/(natDdot(1)/D0+K(k))...
                     *(1-exp(-natdose(j)*(1/D0+K(k)/natDdot(1)))));
             end
         end
@@ -295,11 +295,11 @@ for i=1:nt                                                                  % lo
             %%% nlinfit solution
             Avec = ones(1,nITH);                                            % creates a matrix of ones (one row, nITH columns)
             beta03 = [9 1.4 0.1 Avec]';                                     % initial estimates of s [s-1], Et [eV], Eu [eV], scalling parameter
-            [beta3,R,~,Cov,~] = nlinfit(ithx,ithy,@FITH_BTSLiLi,beta03);
+            [beta3,R,~,Cov,~] = nlinfit(ithx,ithy,@FITH_BTS,beta03);
 
             %%% Confidence intervals
             measL = tvec;                                                   % redefines time dimension for the model, 1 line, 100 columns
-            [IsoPred,delta2] = nlpredci(@FITH_BTSLiLi,tmat(:),beta3,R,'covar',Cov,'alpha',.05,'predopt','curve'); % delta2 are 2-sigma estimates (95%) error estimates on predicted data IsoPred
+            [IsoPred,delta2] = nlpredci(@FITH_BTS,tmat(:),beta3,R,'covar',Cov,'alpha',.05,'predopt','curve'); % delta2 are 2-sigma estimates (95%) error estimates on predicted data IsoPred
             sbeta3 = nlparci(beta3,R,'covar',Cov,'alpha',1-.68);            % extract lower and upper values for params, 1-sigma error estimates (68%)
             sigma3 = [abs(beta3-sbeta3(:,1)),abs(beta3-sbeta3(:,2))];       % calculates parameter lower and upper uncertainties
 
@@ -317,17 +317,17 @@ for i=1:nt                                                                  % lo
             sbeta3 = nlparci(beta3,R,'covar',Cov,'alpha',1-.68);            % extract lower and upper values for params, 1-sigma error estimates (68%)
             sigma3 = [abs(beta3-sbeta3(:,1)),abs(beta3-sbeta3(:,2))];       % calculates parameter lower and upper uncertainties
 
-        %%% Gauss model, GAUSS %%%
-        elseif ITH_fittype==3 % GAUSS model
+        %%% Gaussian distribution of energies model, GDE %%%
+        elseif ITH_fittype==3 % GDE model
 
             %%% nlinfit solution
             Avec = ones(1,nITH);                                            % creates a matrix of ones (one row, nITH columns)
             beta03 = [9 1.4 0.1 Avec]';                                     % initial estimates of s [s-1], mu(Et) [eV], sigma(Et) [eV], scalling parameter
-            [beta3,R,~,Cov,~] = nlinfit(ithx,ithy,@FITH_GAUSS,beta03);
+            [beta3,R,~,Cov,~] = nlinfit(ithx,ithy,@FITH_GDE,beta03);
 
             %%% Confidence intervals
             measL = tvec;                                                   % redefines time dimension for model, 1 line, 100 columns
-            [IsoPred,delta2] = nlpredci(@FITH_GAUSS,tmat(:),beta3,R,'covar',Cov,'alpha',.05,'predopt','curve'); % delta2 are 2-sigma estimates (95%) error estimates on predicted data Isopred
+            [IsoPred,delta2] = nlpredci(@FITH_GDE,tmat(:),beta3,R,'covar',Cov,'alpha',.05,'predopt','curve'); % delta2 are 2-sigma estimates (95%) error estimates on predicted data Isopred
             sbeta3 = nlparci(beta3,R,'covar',Cov,'alpha',1-.68);            % extract lower and upper values for params, 1-sigma error estimates (68%)
             sigma3 = [abs(beta3-sbeta3(:,1)),abs(beta3-sbeta3(:,2))];       % calculates parameter lower and upper uncertainties
 
@@ -358,13 +358,13 @@ for i=1:nt                                                                  % lo
     records(i).params.g2d = [g2d,sg2d];                                     % in [%/decade]
     records(i).params.D0 = [D0,sD0];                                        % in [Gy]
     if SAR_fittype==2; records(i).params.GOK_a = [GOK_a,sGOK_a];            % for GOK model
-    else records(i).params.GOK_a = [NaN,NaN]; end                           % for SSE and GAUSS models
+    else records(i).params.GOK_a = [NaN,NaN]; end                           % for SSE and GDE models
     records(i).params.Et = [Et,sEt];                                        % in [eV]
     if ITH_fittype==1; records(i).params.Eu = [Eu,sEu];                     % for BTS model, in [eV]
-    else records(i).params.Eu = [NaN,NaN]; end                              % for GOK and GAUSS models, in [eV]
+    else records(i).params.Eu = [NaN,NaN]; end                              % for GOK and GDE models, in [eV]
     if ITH_fittype==2; records(i).params.GOK_b = [Eu,sEu];                  % for GOK model
-    else records(i).params.GOK_b = [NaN, NaN]; end                          % for BTS and GAUSS models
-    if ITH_fittype==3; records(i).params.sigmaEt = [Eu,sEu];                % for GAUSS model, in [eV]
+    else records(i).params.GOK_b = [NaN, NaN]; end                          % for BTS and GDE models
+    if ITH_fittype==3; records(i).params.sigmaEt = [Eu,sEu];                % for GDE model, in [eV]
     else records(i).params.sigmaEt = [NaN,NaN]; end	                        % for BTS and GOK models, in [eV]
     records(i).params.s10 = [s10,ss10];                                     % in [s-1]
 
